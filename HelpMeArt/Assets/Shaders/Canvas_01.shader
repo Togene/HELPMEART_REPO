@@ -32,6 +32,14 @@ Shader "Test/Canvas_01"
 			sampler2D _DynamicTex;
 			float4 _DynamicTex_ST;
 
+			float4 blend(float4 A, float4 B)
+			{
+			   float4 C;
+			   C.a = A.a + (1 - A.a) * B.a;
+			   C.rgb = (1 / C.a) * (A.a * A.rgb + (1 - A.a) * B.a * B.rgb);
+			   return C;
+			}
+
 			v2f vert (appdata_full v)
 			{
 				v2f o;
@@ -45,16 +53,11 @@ Shader "Test/Canvas_01"
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-				// sample the texture
+				// sample the texture 
 				fixed4 dynoSmoke = tex2D(_DynamicTex, i.uv);
 				fixed4 main = tex2D(_MainTex, i.uv);
-				fixed4 main_Col = i.uv * dynoSmoke.a;
 
-				dynoSmoke.b = dynoSmoke.a;
-
-				fixed4 col = (main + main_Col);
-
-				return col;
+				return blend(blend(dynoSmoke, main), main);
 			}
 			ENDCG
 		}

@@ -9,6 +9,7 @@
 
 		_SmokeCentre("Smoke Point", Vector) = (0,0,0,0)
 		_SmokeRaduis("Smoke Size", Range(0,1)) = 0.0089
+		_OutPutColor("ColorOfPaint", Color) = (1,1,1,1)
 	}
 	SubShader
 	{
@@ -31,6 +32,7 @@
 
 			uniform float _SmokeRaduis;
 			uniform float2 _SmokeCentre;
+			uniform float4 _OutPutColor;
 
 			struct v2f
 			{
@@ -75,10 +77,12 @@
 				//cc += factor;
 
 				if(distance(i.wPos, _SmokeCentre) < _SmokeRaduis)
-				cc = 1;
+				{
+				cc = 1 / distance(i.wPos, _SmokeCentre); 
+				_OutPutColor =_OutPutColor / distance(i.wPos, _SmokeCentre);
+				}
 
-
-				return float4(1,1,1, cc);
+				return  _OutPutColor * float4(cc, cc, cc, cc);
 			}
 			ENDCG
 		}
