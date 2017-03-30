@@ -18,11 +18,11 @@ public class DynamicApplyShader : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
-        texture = new RenderTexture(256, 256, 16);
+        texture = new RenderTexture(1028, 1028, 16);
         viewer = Camera.main.transform;
-        mat = new Material(Shader.Find("Test/Canvas_01"));
-        mat.name = transform.name;
-        Graphics.Blit(IntialTexture, texture);
+       // mat = new Material(Shader.Find("Test/Canvas_01"));
+        //mat.name = transform.name;
+       // Graphics.Blit(IntialTexture, texture);
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
         this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
@@ -32,7 +32,7 @@ public class DynamicApplyShader : MonoBehaviour {
         Graphics.Blit(texture, buffer, mat);
         Graphics.Blit(buffer, texture);
 
-        //this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
+        this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
 
 	// Update is called once per frame
@@ -41,35 +41,40 @@ public class DynamicApplyShader : MonoBehaviour {
         RaycastHit hit;
         Vector3 mouse = Input.mousePosition;
         Vector3 mWpos = Camera.main.ViewportToScreenPoint(mouse);
+
         Vector3 dir = transform.forward;
-        Ray ray = new Ray(viewer.position, -viewer.up);
+
+        Ray ray = new Ray(viewer.position, viewer.forward);
 
         Debug.DrawRay(ray.origin, ray.direction * 100);
 
         if (Physics.Raycast(ray, out hit))
-        {
-            MeshRenderer mRend = hit.transform.GetComponent<MeshRenderer>();
+        {  //
+           // MeshRenderer mRend = hit.transform.GetComponent<MeshRenderer>();
+           //
+            Vector3 pixelUV = hit.textureCoord;
+           //
+           // Texture2D tex = hit.transform.GetComponent<MeshRenderer>().material.mainTexture as Texture2D;
 
-            Vector3 pixelUV = hit.textureCoord ;
+            //ixelUV.x = tex.width;
+            //ixelUV.y = tex.height;
 
-            //pixelUV.x *= 241;
-            //pixelUV.y *= 241;
 
+            //tex.SetPixel((int)pixelUV.x, (int)pixelUV.y, Color.black);
+            //tex.Apply();
             mat.SetVector("_SmokeCentre",
-                pixelUV
+               pixelUV
             );
+
+            if (Input.GetMouseButton(0))
+                UpdateTexture();
+
         }
 
-        else
-        {
-            mat.SetVector("_SmokeCentre",
-              new Vector3(0, 0, 0));
-        }
-
-        if (Time.time > lastUpdateTime + updateInterval)
-        {
-            UpdateTexture();
-            lastUpdateTime = Time.time;
-        }
-	}
+        //if (Time.time > lastUpdateTime + updateInterval)
+        //{
+        //    UpdateTexture();
+        //    lastUpdateTime = Time.time;
+        //}
+    }
 }

@@ -66,13 +66,13 @@
 				fixed4 col = tex2D(_MainTex, i.uv);
 
 				//Diffusion step (HAWT HAWT HAWT)
-				float factor = _Dissipation * ( 0.25 * (cl + tc + bc + cr) - cc ) ;
+				//float factor = _Dissipation * (.1 * (cl + tc + bc + cr) - cc ) ;
 
 				//Minimum Flow
-				if(factor >= -_Minimum && factor < 0.0)
-				factor = -_Minimum;
+				//if(factor >= -_Minimum && factor < 0.0)
+				//factor = -_Minimum;
 
-				cc += factor;
+				//cc += factor;
 
 				if(distance(i.wPos, _SmokeCentre) < _SmokeRaduis)
 				cc = 1;
