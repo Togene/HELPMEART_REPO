@@ -15,6 +15,8 @@ public class DynamicApplyShader : MonoBehaviour {
     private float lastUpdateTime = 0;
     Transform viewer;
 
+    public Color paintColor;
+
     // Use this for initialization
     void Start ()
     {
@@ -38,38 +40,19 @@ public class DynamicApplyShader : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        RaycastHit hit;
-        Vector3 mouse = Input.mousePosition;
-        Vector3 mWpos = Camera.main.ViewportToScreenPoint(mouse);
 
-        Vector3 dir = transform.forward;
+        mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y));
 
-        Ray ray = new Ray(viewer.position, viewer.forward);
+        if(Collision_Detection.contantPoints.Length > 0)
+        mat.SetVectorArray("_Array", Collision_Detection.contantPoints);
 
-        Debug.DrawRay(ray.origin, ray.direction * 100);
+        mat.SetColor("_PaintColor", paintColor);
+        UpdateTexture();
 
-        if (Physics.Raycast(ray, out hit))
-        {  //
-           // MeshRenderer mRend = hit.transform.GetComponent<MeshRenderer>();
-           //
-            Vector3 pixelUV = hit.textureCoord;
-           //
-           // Texture2D tex = hit.transform.GetComponent<MeshRenderer>().material.mainTexture as Texture2D;
+        //if (Input.GetMouseButton(0))
+                //UpdateTexture();
 
-            //ixelUV.x = tex.width;
-            //ixelUV.y = tex.height;
-
-
-            //tex.SetPixel((int)pixelUV.x, (int)pixelUV.y, Color.black);
-            //tex.Apply();
-            mat.SetVector("_SmokeCentre",
-               pixelUV
-            );
-
-            if (Input.GetMouseButton(0))
-                UpdateTexture();
-
-        }
+        
 
         //if (Time.time > lastUpdateTime + updateInterval)
         //{

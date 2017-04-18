@@ -1,15 +1,18 @@
-﻿Shader "Test/Smoke"
+﻿
+Shader "Test/Smoke"
 {
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_StampTex ("Stamp Texture", 2D) = "white" {}
 		_Pixels("Number of Pixels", Float) = 1028
 		_Dissipation("Rate of Disperstion", Range(0,1)) = 4
 		_Minimum("Minimum Dissipation Size", Range(0,1)) = 0.003
 
 		_SmokeCentre("Smoke Point", Vector) = (0,0,0,0)
 		_SmokeRaduis("Smoke Size", Range(0,1)) = 0.0089
-		_OutPutColor("ColorOfPaint", Color) = (1,1,1,1)
+		_PaintColor("ColorOfPaint", Color) = (1,1,1,1)
+		_ContactPointsLength("Number of Contact Points", Float) = 1.0
 	}
 	SubShader
 	{
@@ -23,16 +26,21 @@
 			#pragma fragment frag
 			#include "UnityCG.cginc"
 
+			uniform int _ContactPointsLength;
+			float3 _Array[3];
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			
+
+			sampler2D _StampTex;
+			float4 _StampTex_ST;
+
 			uniform float _Pixels;
 			uniform float _Dissipation;
 			uniform float _Minimum;
 
 			uniform float _SmokeRaduis;
 			uniform float2 _SmokeCentre;
-			uniform float4 _OutPutColor;
+			uniform float4 _PaintColor;
 
 			struct v2f
 			{
@@ -66,29 +74,35 @@
 
 				// sample the texture
 				fixed4 col = tex2D(_MainTex, i.uv);
+				fixed4 stamp =  tex2D(_StampTex, (i.uv.xy / _SmokeRaduis - ((_SmokeCentre / _SmokeRaduis) - .5)));
 
 				//Diffusion step (HAWT HAWT HAWT)
-				//float factor = _Dissipation * (.1 * (cl + tc + bc + cr) - cc ) ;
+				float factor = _Dissipation * (.1 * (cl + tc + bc + cr) - cc ) ;
 
 				//Minimum Flow
-				//if(factor >= -_Minimum && factor < 0.0)
-				//factor = -_Minimum;
+				if(factor >= -_Minimum && factor < 0.0)
+				factor = -_Minimum;
 
-				//cc += factor;
+				cc += factor;
+				stamp += factor;
 
-				//float d = max(abs((i.wPos / 1000)), abs((i.wPos / 1000)));
-				//cc = smoothstep(0,1, d); //* vec4(1.0);
+				float3 wPos = i.wPos;
 
-				if(distance(i.wPos, _SmokeCentre) < _SmokeRaduis)
+				for(int i = 0; i < _ContactPointsLength; i++)
 				{
-
-				cc = 1 / distance(i.wPos, _SmokeCentre); 
-				_OutPutColor =_OutPutColor / distance(i.wPos, _SmokeCentre);
+					if(distance(wPos, _Array[i].xy) < _SmokeRaduis)
+					{
+					cc = 1 / distance(wPos, _Array[i].xy); 
+					_PaintColor =1 / distance(wPos, _Array[i].xy);
+					//discard;
+					}
 				}
+			
+				//if(stamp.a < .9)
+				//discard;
 
 
-
-				return  _OutPutColor * float4(cc, cc, cc, cc);
+				return _PaintColor * float4(cc, cc, cc, cc);
 			}
 			ENDCG
 		}
