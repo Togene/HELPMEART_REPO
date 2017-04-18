@@ -76,11 +76,17 @@
 
 				//cc += factor;
 
+				//float d = max(abs((i.wPos / 1000)), abs((i.wPos / 1000)));
+				//cc = smoothstep(0,1, d); //* vec4(1.0);
+
 				if(distance(i.wPos, _SmokeCentre) < _SmokeRaduis)
 				{
+
 				cc = 1 / distance(i.wPos, _SmokeCentre); 
 				_OutPutColor =_OutPutColor / distance(i.wPos, _SmokeCentre);
 				}
+
+
 
 				return  _OutPutColor * float4(cc, cc, cc, cc);
 			}

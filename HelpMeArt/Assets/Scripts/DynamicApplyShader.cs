@@ -32,7 +32,7 @@ public class DynamicApplyShader : MonoBehaviour {
         Graphics.Blit(texture, buffer, mat);
         Graphics.Blit(buffer, texture);
 
-        this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
+        //this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
 
 	// Update is called once per frame
