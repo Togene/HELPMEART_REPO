@@ -26,7 +26,7 @@ public class DynamicApplyShader : MonoBehaviour {
         //mat.name = transform.name;
        // Graphics.Blit(IntialTexture, texture);
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
-        this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
+       // this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
 	
     public void UpdateTexture()
@@ -34,13 +34,13 @@ public class DynamicApplyShader : MonoBehaviour {
         Graphics.Blit(texture, buffer, mat);
         Graphics.Blit(buffer, texture);
 
-        //this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
+        this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
 
 	// Update is called once per frame
 	void Update ()
     {
-
+        UpdateTexture();
         mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y));
 
         if(Collision_Detection.contantPoints.Length > 0)

@@ -8,8 +8,8 @@ public class Collision_Detection : MonoBehaviour {
 
     // public static List<Vector4> contantPoints = new List<Vector4>();
     public GameObject[] brushPoints;
-    public static Vector4[] contantPoints = new Vector4[3];
-    public Vector4[] contactPointsView = new Vector4[3];
+    public static Vector4[] contantPoints = new Vector4[6];
+    public Vector4[] contactPointsView = new Vector4[6];
 
     [Range (0, 1)]
     public float rayLength;
@@ -42,7 +42,7 @@ public class Collision_Detection : MonoBehaviour {
             {
                 if (hit.transform.name == "Canvas")
                 {
-                    contantPoints[i % 3] = new Vector4(hit.textureCoord.x, hit.textureCoord.y, 1.0f, 1.0f);
+                    contantPoints[i % 6] = new Vector4(hit.textureCoord.x, hit.textureCoord.y, 1.0f, 1.0f);
                     Debug.Log("Hitting");
                 }
             }

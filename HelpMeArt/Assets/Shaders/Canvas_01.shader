@@ -59,7 +59,7 @@ Shader "Test/Canvas_01"
 				fixed4 dynoSmoke = tex2D(_DynamicTex, i.uv);
 				fixed4 main = tex2D(_MainTex, i.uv);
 
-				return blend(blend(dynoSmoke, main), main);
+				return blend(dynoSmoke, main);
 			}
 			ENDCG
 		}

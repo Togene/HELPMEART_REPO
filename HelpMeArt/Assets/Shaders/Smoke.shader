@@ -8,7 +8,7 @@ Shader "Test/Smoke"
 		_Pixels("Number of Pixels", Float) = 1028
 		_Dissipation("Rate of Disperstion", Range(0,1)) = 4
 		_Minimum("Minimum Dissipation Size", Range(0,1)) = 0.003
-
+		_Transmission("Transmission", Vector) = (1,1,1,1)
 		_SmokeCentre("Smoke Point", Vector) = (0,0,0,0)
 		_SmokeRaduis("Smoke Size", Range(0,1)) = 0.0089
 		_PaintColor("ColorOfPaint", Color) = (1,1,1,1)
@@ -27,13 +27,13 @@ Shader "Test/Smoke"
 			#include "UnityCG.cginc"
 
 			uniform int _ContactPointsLength;
-			float3 _Array[3];
+			float3 _Array[6];
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
 			sampler2D _StampTex;
 			float4 _StampTex_ST;
-
+			uniform half4 _Transmission;
 			uniform float _Pixels;
 			uniform float _Dissipation;
 			uniform float _Minimum;
@@ -52,57 +52,63 @@ Shader "Test/Smoke"
 			v2f vert (appdata_full v)
 			{
 				v2f o;
-				o.pos = UnityObjectToClipPos(v.vertex);
+				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
 				o.uv = v.texcoord;
-				o.wPos =  mul(unity_ObjectToWorld, v.vertex).xyz;
+				o.wPos =  mul(unity_ObjectToWorld, v.vertex);
 				return o;
 			}
 			
-			fixed4 frag (v2f i) : COLOR
+			fixed4 frag (v2f i) : SV_TARGET
 			{
 
-				fixed2 uv = round(i.uv * _Pixels) / _Pixels;
+				fixed2 uv = (i.uv * _Pixels) / _Pixels;
+			//
+			////Neighboring cells
+			half s = 1 / _Pixels;
+			//
+			float cl = tex2D(_MainTex, uv + fixed2(-s, 0)).a;	// Centre Left
+			float tc = tex2D(_MainTex, uv + fixed2(-0, -s)).a;	// Top Centre
+			float cc = tex2D(_MainTex, uv + fixed2(0, 0)).a;	// Centre Centre
+			float bc = tex2D(_MainTex, uv + fixed2(0, +s)).a;	// Bottom Centre
+			float cr = tex2D(_MainTex, uv + fixed2(+s, 0)).a;	// Centre Right
 
-				//Neighboring cells
-			    half s = 1 / _Pixels;
+			float factor =
+				_Dissipation *
+				(
+				(
+					cl * _Transmission.x +
+					tc * _Transmission.y +
+					bc * _Transmission.z +
+					cr * _Transmission.w
+					)
+					- (_Transmission.x + _Transmission.y + _Transmission.z + _Transmission.w) * cc
+					);
 
-				float cl = tex2D(_MainTex, uv + fixed2(-s, 0)).a; // F[ x - 1, y ] : Centre Left
-				float tc = tex2D(_MainTex, uv + fixed2(0, -s)).a; // F[ x, y - 1 ] : Top Left
-				float cc = tex2D(_MainTex, uv + fixed2(0,  0)).a; // F[ x,  y    ] : Centre Centre
-				float bc = tex2D(_MainTex, uv + fixed2(0, +s)).a; //F[ x, y + 1] : Bottom Centre
-				float cr = tex2D(_MainTex, uv + fixed2(+s, 0)).a; // F[ x, y] : Centre Right
+			//Minimum Flow
+			if(factor >= -_Minimum && factor < 0.0)
+			factor = -_Minimum;
 
-				// sample the texture
-				fixed4 col = tex2D(_MainTex, i.uv);
-				fixed4 stamp =  tex2D(_StampTex, (i.uv.xy / _SmokeRaduis - ((_SmokeCentre / _SmokeRaduis) - .5)));
+			cc += factor;
+			//stamp += factor;
 
-				//Diffusion step (HAWT HAWT HAWT)
-				float factor = _Dissipation * (.1 * (cl + tc + bc + cr) - cc ) ;
+			float3 wPos = i.wPos;
 
-				//Minimum Flow
-				if(factor >= -_Minimum && factor < 0.0)
-				factor = -_Minimum;
-
-				cc += factor;
-				stamp += factor;
-
-				float3 wPos = i.wPos;
-
-				for(int i = 0; i < _ContactPointsLength; i++)
+			for (int i = 0; i < _ContactPointsLength; i++)
+			{
+				if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
 				{
-					if(distance(wPos, _Array[i].xy) < _SmokeRaduis)
-					{
-					cc = 1 / distance(wPos, _Array[i].xy); 
-					_PaintColor =1 / distance(wPos, _Array[i].xy);
-					//discard;
-					}
-				}
-			
-				//if(stamp.a < .9)
+				cc = 1;
+				_PaintColor = 1;
 				//discard;
+				}
+			}
+
+			//if(stamp.a < .9)
+			//discard;
 
 
-				return _PaintColor * float4(cc, cc, cc, cc);
+			return 
+				_PaintColor * float4(cc, cc, cc, cc);
 			}
 			ENDCG
 		}

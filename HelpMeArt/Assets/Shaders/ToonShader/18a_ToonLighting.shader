@@ -55,7 +55,7 @@ Properties{
 					o.normalDir = normalize(mul(half4(v.normal, 0.0), unity_WorldToObject).xyz);
 					
 					//Unity transform Position
-					o.pos = UnityObjectToClipPos(v.vertex);
+					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
 					
 					//world Position
 					half4 posWorld = mul(unity_ObjectToWorld, v.vertex);
