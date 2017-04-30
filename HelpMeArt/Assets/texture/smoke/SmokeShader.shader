@@ -1,4 +1,6 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
 // Alan Zucconi: http://www.alanzucconi.com/?p=4565
 Shader "Hidden/Smoke"
@@ -55,7 +57,7 @@ Shader "Hidden/Smoke"
 			vertOutput vert(appdata_full v)
 			{
 				vertOutput o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.texcoord;
 				o.wPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				return o;

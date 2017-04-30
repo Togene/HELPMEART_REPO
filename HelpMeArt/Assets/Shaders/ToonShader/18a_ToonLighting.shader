@@ -1,5 +1,7 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
@@ -55,7 +57,7 @@ Properties{
 					o.normalDir = normalize(mul(half4(v.normal, 0.0), unity_WorldToObject).xyz);
 					
 					//Unity transform Position
-					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+					o.pos = UnityObjectToClipPos(v.vertex);
 					
 					//world Position
 					half4 posWorld = mul(unity_ObjectToWorld, v.vertex);

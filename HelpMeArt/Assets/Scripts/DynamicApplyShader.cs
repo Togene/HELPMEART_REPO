@@ -5,9 +5,11 @@ using UnityEngine;
 public class DynamicApplyShader : MonoBehaviour {
 
     public Material mat; //Wraps the Shader
+    public Material outPut;
 
     private RenderTexture buffer;
     private RenderTexture texture;
+    public RenderTexture Newtexture;
 
     public Texture IntialTexture; 
 
@@ -16,26 +18,51 @@ public class DynamicApplyShader : MonoBehaviour {
     Transform viewer;
 
     public Color paintColor;
+    private Color m_paintColor;
 
     // Use this for initialization
     void Start ()
     {
+
+        outPut = GetComponent<MeshRenderer>().material;
+
+        m_paintColor = paintColor;
+
         texture = new RenderTexture(1028, 1028, 16);
         viewer = Camera.main.transform;
        // mat = new Material(Shader.Find("Test/Canvas_01"));
         //mat.name = transform.name;
        // Graphics.Blit(IntialTexture, texture);
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
-       // this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
+   
+        outPut.SetTexture("_DynamicTex", texture);
     }
 	
     public void UpdateTexture()
     {
         Graphics.Blit(texture, buffer, mat);
         Graphics.Blit(buffer, texture);
-
-        this.GetComponent<MeshRenderer>().material.SetTexture("_DynamicTex", texture);
     }
+
+    public void NewTexture()
+    {
+        Debug.Log("New Texture Made");
+        //Saving the Texture
+
+        RenderTexture temp = RenderTexture.GetTemporary(1028, 1028, 24);
+
+        texture = new RenderTexture(1028, 1028, 16);
+        buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
+
+        Graphics.Blit(null, temp, outPut);
+        Graphics.Blit(temp, Newtexture);
+
+        outPut.SetTexture("_MainTex", Newtexture);
+        outPut.SetTexture("_DynamicTex", texture);
+
+        temp.Release();
+    }
+
 
 	// Update is called once per frame
 	void Update ()
@@ -47,12 +74,25 @@ public class DynamicApplyShader : MonoBehaviour {
         mat.SetVectorArray("_Array", Collision_Detection.contantPoints);
 
         mat.SetColor("_PaintColor", paintColor);
-        UpdateTexture();
 
-        //if (Input.GetMouseButton(0))
-                //UpdateTexture();
+        if (!Velocity_Calculate.updateingVelocity)
+        {
+          // NewTexture();
+          // mat.SetVector("_Transmission", new Vector4(Velocity_Calculate.DrawVelocity.x, Velocity_Calculate.DrawVelocity.y, Velocity_Calculate.DrawVelocity.z, 1.0f));
+        }
 
-        
+        if (Input.GetMouseButton(0))
+            mat.SetFloat("_DRAWMode", 1);
+
+        if(m_paintColor != paintColor)
+        {
+            NewTexture();
+            m_paintColor = paintColor;
+        }
+        else
+        {
+            UpdateTexture();
+        }
 
         //if (Time.time > lastUpdateTime + updateInterval)
         //{

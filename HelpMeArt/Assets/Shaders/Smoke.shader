@@ -1,4 +1,6 @@
-﻿
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+
 Shader "Test/Smoke"
 {
 	Properties
@@ -13,6 +15,7 @@ Shader "Test/Smoke"
 		_SmokeRaduis("Smoke Size", Range(0,1)) = 0.0089
 		_PaintColor("ColorOfPaint", Color) = (1,1,1,1)
 		_ContactPointsLength("Number of Contact Points", Float) = 1.0
+		[KeywordEnum(Draw, NoDraw)] _DRAWMode ("Drawing Mode", Float) = 1.0
 	}
 	SubShader
 	{
@@ -25,6 +28,7 @@ Shader "Test/Smoke"
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "UnityCG.cginc"
+			#pragma shader_feature _DRAWMode_DRAW _DRAWMode_NODRAW
 
 			uniform int _ContactPointsLength;
 			float3 _Array[6];
@@ -52,7 +56,7 @@ Shader "Test/Smoke"
 			v2f vert (appdata_full v)
 			{
 				v2f o;
-				o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.uv = v.texcoord;
 				o.wPos =  mul(unity_ObjectToWorld, v.vertex);
 				return o;
@@ -89,7 +93,6 @@ Shader "Test/Smoke"
 			factor = -_Minimum;
 
 			cc += factor;
-			//stamp += factor;
 
 			float3 wPos = i.wPos;
 
@@ -98,7 +101,7 @@ Shader "Test/Smoke"
 				if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
 				{
 				cc = 1;
-				_PaintColor = 1;
+				_PaintColor.rgb = _PaintColor.rgb;
 				//discard;
 				}
 			}
@@ -108,7 +111,7 @@ Shader "Test/Smoke"
 
 
 			return 
-				_PaintColor * float4(cc, cc, cc, cc);
+				float4(_PaintColor.rgb * cc, cc);
 			}
 			ENDCG
 		}
