@@ -29,23 +29,23 @@ public class Paint_Mesh_Deformer_Points : MonoBehaviour {
     public Vector3[] PaintRingTopVertices, PaintRingBottomVertices, PaintRingVerticesOrigin;
     public line[] Lines;
 
-    public Vector3 offset;
+    public Vector3 offsetTop, offsetBottom;
 	// Use this for initialization
 	void Start ()
     {
-        //PaintRingVerticesOrigin = GetComponent<MeshFilter>().mesh.vertices;
-        //PaintRingTopVertices = GetComponent<MeshFilter>().mesh.vertices;
-        //PaintRingBottomVertices = GetComponent<MeshFilter>().mesh.vertices;
-
-        //Transorfing vertices to World Space and saving its Original Position before Translation and Rotation
-        // for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
-        //     PaintRingVerticesOrigin[i] = (transform.localToWorldMatrix) *  (PaintRingVerticesOrigin[i]);
-        Lines = new line[PaintRingVerticesOrigin.Length]; 
-
-        for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
-        {
-            Lines[i] = new line(PaintRingTopVertices[i], PaintRingBottomVertices[i]);
-        }
+       //PaintRingVerticesOrigin = GetComponent<MeshFilter>().mesh.vertices;
+       //PaintRingTopVertices = GetComponent<MeshFilter>().mesh.vertices;
+       //PaintRingBottomVertices = GetComponent<MeshFilter>().mesh.vertices;
+       //
+       //// Transorfing vertices to World Space and saving its Original Position before Translation and Rotation
+       // for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
+       //     PaintRingVerticesOrigin[i] = (transform.localToWorldMatrix) *  (PaintRingVerticesOrigin[i]);
+       //Lines = new line[PaintRingVerticesOrigin.Length]; 
+       //
+       // for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
+       // {
+       //     Lines[i] = new line(PaintRingTopVertices[i], PaintRingBottomVertices[i]);
+       // }
     }
 	
 	// Update is called once per frame
@@ -63,11 +63,11 @@ public class Paint_Mesh_Deformer_Points : MonoBehaviour {
             Vector3 PaintRingTopVerticesPosition =
                 new Vector3(transform.root.position.x, transform.root.position.y, transform.root.position.z);
             //Position Handling
-            PaintRingTopVertices[i] = (transform.root.localToWorldMatrix) * (PaintRingVerticesOrigin[i] + transform.localPosition + offset) +
+            PaintRingTopVertices[i] = (transform.root.localToWorldMatrix) * (PaintRingVerticesOrigin[i] + transform.localPosition + offsetTop) +
                 new Vector4(PaintRingTopVerticesPosition.x, PaintRingTopVerticesPosition.y, PaintRingTopVerticesPosition.z, 0);
             //Scale Handling
 
-            PaintRingBottomVertices[i] = (transform.root.localToWorldMatrix) * (PaintRingVerticesOrigin[i]) +
+            PaintRingBottomVertices[i] = (transform.root.localToWorldMatrix) * (PaintRingVerticesOrigin[i] - offsetBottom) +
                 new Vector4(PaintRingTopVerticesPosition.x, PaintRingTopVerticesPosition.y, PaintRingTopVerticesPosition.z, 0);
 
             Lines[i] = new line(PaintRingTopVertices[i], PaintRingBottomVertices[i]);
@@ -90,9 +90,6 @@ public class Paint_Mesh_Deformer_Points : MonoBehaviour {
 
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawLine(t, b);
-
-                Vector3 ab = Lines[i].AB;
-                Gizmos.DrawSphere(ab, .05f);
             }
         }
     }

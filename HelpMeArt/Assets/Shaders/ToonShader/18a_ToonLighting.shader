@@ -8,7 +8,7 @@
 Shader"EugeneShader/ShaderTestDemos/18a_ToonLighting"{
 Properties{
 	_Color("Lit Color", Color) = (1,1,1,1)
-	_UnlitColor("Unlit Color", Color) = (0.5,0.5,0.5,0.5)
+	//_UnlitColor("Unlit Color", Color) = (0.5,0.5,0.5,0.5)
 	_DiffuseThreshold("Lighting Threshold", Range(-1.1,1)) = 0.1
 	_Diffusion("Diffusion", Range(0,0.99)) = 0.0
 	_SpecColor("Specular Color", Color) = (1,1,1,1)
@@ -24,7 +24,7 @@ Properties{
 			
 			//user defined verables
 			uniform fixed4 _Color;
-			uniform fixed4 _UnlitColor;
+			//uniform fixed4 _UnlitColor;
 			uniform fixed _DiffuseThreshold;
 			uniform fixed _Diffusion;
 			uniform fixed4 _SpecColor;
@@ -86,7 +86,7 @@ Properties{
 			fixed diffuseCutoff = saturate((max (_DiffuseThreshold, nDotL) -  _DiffuseThreshold) * pow((2-_Diffusion),10));
 			fixed specularCutoff = saturate((max(_Shininess, dot(reflect(-i.lightDir, i.normalDir), i.viewDir))- _Shininess)* pow((2-_SpecDiffusion), 10));
 			
-			fixed3 ambientLight = (1-diffuseCutoff) * _UnlitColor.xyz;
+			fixed3 ambientLight = (1-diffuseCutoff) * _Color.xyz / 2;
 			fixed3 diffuseReflection = (1-specularCutoff) * _Color.xyz * diffuseCutoff;
 			fixed3 specularReflection = _SpecColor.xyz * specularCutoff;
 			

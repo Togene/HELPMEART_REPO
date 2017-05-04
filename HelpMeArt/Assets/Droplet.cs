@@ -20,6 +20,7 @@ public class Droplet : PooledObject
 
     void OnCollisionEnter(Collision enteredCollider)
     {
+        if(enteredCollider.gameObject.tag == "Paintable")
             ReturnToPool();
     }
 

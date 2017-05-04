@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class Collision_Detection : MonoBehaviour {
+public class Paint_Collision_Detection : MonoBehaviour {
 
     // public static List<Vector4> contantPoints = new List<Vector4>();
     public GameObject[] brushPoints;

@@ -70,8 +70,8 @@ public class DynamicApplyShader : MonoBehaviour {
         UpdateTexture();
         mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y));
 
-        if(Collision_Detection.contantPoints.Length > 0)
-        mat.SetVectorArray("_Array", Collision_Detection.contantPoints);
+        if(Paint_Collision_Detection.contantPoints.Length > 0)
+        mat.SetVectorArray("_Array", Paint_Collision_Detection.contantPoints);
 
         mat.SetColor("_PaintColor", paintColor);
 
