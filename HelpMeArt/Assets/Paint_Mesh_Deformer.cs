@@ -7,14 +7,15 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
     public Paint_Mesh_Deformer_Points paintPoints;
     public Vector3[] vertices, lerpedVertices;
 
-    public float startLerpValue;
+    public Vector3 pivotPoint, minY, MaxY, minX, MaxX;
+
+    public float startLerpValue, paintLerpValue;
 	// Use this for initialization
 	void Start ()
     {
         paintPoints = FindObjectOfType<Paint_Mesh_Deformer_Points>();
         vertices = GetComponent<MeshFilter>().mesh.vertices;
-
-        lerpedVertices = LerpVertice(startLerpValue, vertices, 0);
+        lerpedVertices = new Vector3[vertices.Length];
     }
 
     Vector3[] verticesToWorld()
@@ -31,56 +32,61 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
 
     void Update ()
     {
-     float Rx = (transform.root.rotation.x);
-     float Rz = (transform.root.rotation.z);
+        float Rx = g_utils.Norm(transform.root.rotation.eulerAngles.x, 0, 90);
+        float Rz = g_utils.Norm(transform.root.rotation.eulerAngles.z, 0, 90);
+        float Ry = transform.root.rotation.y;
 
-    float value = g_utils.Norm(Mathf.Abs(transform.root.rotation.x), 0, 0.7f);
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 vert = vertices[i];
 
-     Vector3[] lerpedVerticesX = LerpVertice(Rx - startLerpValue, vertices, Rx);
-     Vector3[] lerpedVerticesZ = LerpVertice(Rz - startLerpValue, vertices, Rz);
+            if(vert.y <= minY.y)
+            {
+                minY = new Vector3(0, vert.y, transform.InverseTransformPoint (paintPoints.PaintRingTopVertices[i]).z);
+            }
+
+            if (vert.y >= MaxY.y)
+            {
+                MaxY = new Vector3(0, vert.y, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[i]).z);
+            }
+
+            if (vert.x <= minX.x)
+            {
+                minX = new Vector3(vert.x, 0, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[i]).z);
+            }
+
+            if (vert.x > MaxX.x)
+            {
+                MaxX = new Vector3(vert.x, 0, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[i]).z);
+            }
+
+        }
+
+        pivotPoint = new Vector3(0, 0, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[1]).z);
+                        
+        pivotPoint.x = Mathf.Lerp(MaxX.x, minX.x, (Rz - startLerpValue));                                                                   
+        pivotPoint.y = Mathf.Lerp(MaxY.y, minY.y, (Rx - startLerpValue));
+
 
         for(int i = 0; i < vertices.Length; i++)
         {
-            lerpedVertices[i] = lerpedVerticesZ[i];
-        }
-    }
+            Vector3 vert = vertices[i];
 
-    Vector3[] LerpVertice(float value, Vector3[] verts, float direction)
-    {
+            float InverseTop = transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[1]).z;
+            float InverseBottom = transform.InverseTransformPoint(paintPoints.PaintRingBottomVertices[1]).z;
 
-        Vector3[] newVerts = new Vector3[verts.Length];
-        verts.CopyTo(newVerts, 0);
+            float dist = (pivotPoint- vert).magnitude;
 
-        for (int i = 0; i < newVerts.Length; i++)
-        {
+            float value = g_utils.Norm(dist, 0, 1) * 100;
+  
+            float zFactor = Mathf.Lerp(InverseTop, InverseBottom, value - paintLerpValue);
 
-            //Bottom Right
-            if (Mathf.Sign(vertices[i].x) == -1 && Mathf.Sign(vertices[i].y) == -1)
-            {
-                    newVerts[i] = Vector3.Lerp(paintPoints.Lines[i].b, paintPoints.Lines[i].a, value);
-            }                                                                                    
-            //Bottom Left                                                                        
-            if (Mathf.Sign(vertices[i].x) == 1 && Mathf.Sign(vertices[i].y) == -1)               
-            {
-                    newVerts[i] = Vector3.Lerp(paintPoints.Lines[i].b, paintPoints.Lines[i].a, value);
-            }
-            //Top Left
-            if (Mathf.Sign(vertices[i].x) == -1 && Mathf.Sign(vertices[i].y) == 1)
-            {
-                    newVerts[i] = Vector3.Lerp(paintPoints.Lines[i].a, paintPoints.Lines[i].b, value);
-            }
-            //Top Right
-            if (Mathf.Sign(vertices[i].x) == 1 && Mathf.Sign(vertices[i].y) == 1)
-            {
-                    newVerts[i] = Vector3.Lerp(paintPoints.Lines[i].a, paintPoints.Lines[i].b, value);
-            }
-
-            newVerts[i] = transform.InverseTransformPoint(newVerts[i]);
+            lerpedVertices[i] = new Vector3(vert.x, vert.y, zFactor);
         }
 
-        return newVerts;
+        GetComponent<MeshFilter>().mesh.vertices = lerpedVertices;
     }
-    
+  
     void DrawPoints()
     {
         for (int i = 0; i < paintPoints.Lines.Length; i++)
@@ -94,38 +100,43 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
     {
         for (int i = 0; i < lerpedVertices.Length; i++)
         {
-            //Bottom Right
-            if (Mathf.Sign(lerpedVertices[i].x) == -1 && Mathf.Sign(lerpedVertices[i].y) == -1)
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawCube(transform.TransformPoint(lerpedVertices[i]), new Vector3(.10f, .10f, .10f));
-            }
-            //Bottom Left
-            if (Mathf.Sign(lerpedVertices[i].x) == 1 && Mathf.Sign(lerpedVertices[i].y) == -1)
-            {
-                Gizmos.color = Color.blue;
-                Gizmos.DrawCube(transform.TransformPoint(lerpedVertices[i]), new Vector3(.10f, .10f, .10f));
-            }
-
-            if (Mathf.Sign(lerpedVertices[i].x) == -1 && Mathf.Sign(lerpedVertices[i].y) == 1)
-            {
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawCube(transform.TransformPoint(lerpedVertices[i]), new Vector3(.10f, .10f, .10f));
-            }
-
-            if (Mathf.Sign(lerpedVertices[i].x) == 1 && Mathf.Sign(lerpedVertices[i].y) == 1)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawCube(transform.TransformPoint(lerpedVertices[i]), new Vector3(.10f, .10f, .10f));
-            }
         }
+    }
+
+    void DrawGrid()
+    {
+
+        Vector3 minYPoint = transform.TransformPoint(minY);
+        Vector3 MaxYPoint = transform.TransformPoint(MaxY);
+
+        Vector3 minXPoint = transform.TransformPoint(minX);
+        Vector3 MaxXPoint = transform.TransformPoint(MaxX);
+
+        Vector3 pivotPointWorld = transform.TransformPoint(pivotPoint);
+
+        Gizmos.DrawSphere(minYPoint, .1f);
+        Gizmos.DrawSphere(MaxYPoint, .1f);
+                                                           
+        Gizmos.DrawSphere(minXPoint, .1f);
+        Gizmos.DrawSphere(MaxXPoint, .1f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(minYPoint, MaxYPoint);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(minXPoint, MaxXPoint);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(pivotPointWorld, .1f);
     }
 
     void OnDrawGizmos()
     {
         if (Application.isPlaying)
         {
-            DrawPoints();
+            //DrawPoints();
+            DrawGrid();
             DrawLerpPoints();
         }
 
