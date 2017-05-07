@@ -26,8 +26,9 @@ public class Paint_Collision_Detection : MonoBehaviour {
 	void Update ()
     {
 
-        transform.position =  RayCast.hitPoint + offset;
-
+        
+        transform.rotation = Quaternion.FromToRotation(-transform.forward, RayCast.direction) * transform.rotation;
+        transform.position = RayCast.hitPoint + offset + RayCast.direction; 
         contactPointsView = contantPoints;
 
 
@@ -40,10 +41,10 @@ public class Paint_Collision_Detection : MonoBehaviour {
 
             if(Physics.Raycast(ray, out hit, rayLength))
             {
-                if (hit.transform.name == "Canvas")
+                if (hit.transform.tag == "Paintable")
                 {
                     contantPoints[i % 6] = new Vector4(hit.textureCoord.x, hit.textureCoord.y, 1.0f, 1.0f);
-                    Debug.Log("Hitting");
+                    //Debug.Log("Hitting");
                 }
             }
         }

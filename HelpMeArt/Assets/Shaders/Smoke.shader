@@ -1,7 +1,7 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
 
-Shader "Test/Smoke"
+Shader "Eugene/Paintable"
 {
 	Properties
 	{
@@ -10,7 +10,7 @@ Shader "Test/Smoke"
 		_Pixels("Number of Pixels", Float) = 1028
 		_Dissipation("Rate of Disperstion", Range(0,1)) = 4
 		_Minimum("Minimum Dissipation Size", Range(0,1)) = 0.003
-		_Transmission("Transmission", Vector) = (1,1,1,1)
+		_Transmission("Transmission", Vector) = (2,2,2,2)
 		_SmokeCentre("Smoke Point", Vector) = (0,0,0,0)
 		_SmokeRaduis("Smoke Size", Range(0,1)) = 0.0089
 		_PaintColor("ColorOfPaint", Color) = (1,1,1,1)

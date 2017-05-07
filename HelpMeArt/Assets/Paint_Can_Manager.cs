@@ -6,7 +6,6 @@ public class Paint_Can_Manager : MonoBehaviour {
 
     public GameObject paint;
 
-
     public Color paintColor;
 
     private Color oldpaintColor;
@@ -30,6 +29,7 @@ public class Paint_Can_Manager : MonoBehaviour {
         if(oldpaintColor != paintColor)
         {
             paint.GetComponent<MeshRenderer>().material.color = paintColor;
+            oldpaintColor = paintColor;
         }
 
 		if(Mathf.Abs(transform.rotation.x) > angleActivation || Mathf.Abs(transform.rotation.z) > angleActivation)

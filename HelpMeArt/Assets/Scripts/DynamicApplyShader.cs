@@ -4,43 +4,50 @@ using UnityEngine;
 
 public class DynamicApplyShader : MonoBehaviour {
 
-    public Material mat; //Wraps the Shader
-    public Material outPut;
+    private Material paint_mat; //Wraps the Shader
+    private Material outPut;
 
     private RenderTexture buffer;
     private RenderTexture texture;
-    public RenderTexture Newtexture;
+    private RenderTexture Newtexture;
 
-    public Texture IntialTexture; 
+    public Texture IntialTexture;
 
-    public float updateInterval;
-    private float lastUpdateTime = 0;
-    Transform viewer;
-
-    public Color paintColor;
+    private Color paintColor;
     private Color m_paintColor;
+
+    public bool paint;
 
     // Use this for initialization
     void Start ()
     {
 
-        outPut = GetComponent<MeshRenderer>().material;
+        outPut = new Material(Shader.Find("Eugene/Paintable_Output"));
+        outPut.name = transform.name;
+
+        transform.GetComponent<MeshRenderer>().material = outPut;
+        outPut.mainTexture = IntialTexture;
+        paint_mat = new Material(Shader.Find("Eugene/Paintable"));
+        paint_mat.SetFloat("_Pixels", 1028);
+        paint_mat.SetVector("_Transmission", new Vector4(1, 1, 1, 1));
+        paint_mat.SetFloat("_Dissipation", 0);
+        paint_mat.SetFloat("_ContactPointsLength", 6);
+
+        paint_mat.SetFloat("_SmokeRaduis", 0.02f / (transform.localScale.x / 100));
 
         m_paintColor = paintColor;
-
-        texture = new RenderTexture(1028, 1028, 16);
-        viewer = Camera.main.transform;
-       // mat = new Material(Shader.Find("Test/Canvas_01"));
-        //mat.name = transform.name;
-       // Graphics.Blit(IntialTexture, texture);
+        texture = new RenderTexture(2056, 2056, 24);
+        texture.filterMode = FilterMode.Bilinear;
+        Newtexture = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
+        Newtexture.filterMode = FilterMode.Bilinear; 
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
-   
+        buffer.filterMode = FilterMode.Bilinear;
         outPut.SetTexture("_DynamicTex", texture);
     }
 	
     public void UpdateTexture()
     {
-        Graphics.Blit(texture, buffer, mat);
+        Graphics.Blit(texture, buffer, paint_mat);
         Graphics.Blit(buffer, texture);
     }
 
@@ -50,9 +57,11 @@ public class DynamicApplyShader : MonoBehaviour {
         //Saving the Texture
 
         RenderTexture temp = RenderTexture.GetTemporary(1028, 1028, 24);
-
+        temp.filterMode = FilterMode.Bilinear;
         texture = new RenderTexture(1028, 1028, 16);
+        texture.filterMode = FilterMode.Trilinear;
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
+        buffer.filterMode = FilterMode.Trilinear; 
 
         Graphics.Blit(null, temp, outPut);
         Graphics.Blit(temp, Newtexture);
@@ -67,37 +76,43 @@ public class DynamicApplyShader : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+
+        if (paintColor != Paint_Color.PaintColor)
+        {
+            paintColor = Paint_Color.PaintColor;
+        }
+
+            if (paint)
+        {     
+            paint_mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y) / transform.localScale.x);
+
+            if (Paint_Collision_Detection.contantPoints.Length > 0)
+                paint_mat.SetVectorArray("_Array", Paint_Collision_Detection.contantPoints);
+
+            paint_mat.SetColor("_PaintColor", paintColor);
+
+            if (!Velocity_Calculate.updateingVelocity)
+            {
+                // NewTexture();
+                // paint_mat.SetVector("_Transmission", new Vector4(Velocity_Calculate.DrawVelocity.x, Velocity_Calculate.DrawVelocity.y, Velocity_Calculate.DrawVelocity.z, 1.0f));
+            }
+
+            if (Input.GetMouseButton(0))
+                paint_mat.SetFloat("_DRAWMode", 1);
+
+            if (m_paintColor != paintColor)
+            {
+                NewTexture();
+                m_paintColor = paintColor;
+            }
+            else
+            {
+                //UpdateTexture();
+            }
+        }
+
         UpdateTexture();
-        mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y));
 
-        if(Paint_Collision_Detection.contantPoints.Length > 0)
-        mat.SetVectorArray("_Array", Paint_Collision_Detection.contantPoints);
-
-        mat.SetColor("_PaintColor", paintColor);
-
-        if (!Velocity_Calculate.updateingVelocity)
-        {
-          // NewTexture();
-          // mat.SetVector("_Transmission", new Vector4(Velocity_Calculate.DrawVelocity.x, Velocity_Calculate.DrawVelocity.y, Velocity_Calculate.DrawVelocity.z, 1.0f));
-        }
-
-        if (Input.GetMouseButton(0))
-            mat.SetFloat("_DRAWMode", 1);
-
-        if(m_paintColor != paintColor)
-        {
-            NewTexture();
-            m_paintColor = paintColor;
-        }
-        else
-        {
-            UpdateTexture();
-        }
-
-        //if (Time.time > lastUpdateTime + updateInterval)
-        //{
-        //    UpdateTexture();
-        //    lastUpdateTime = Time.time;
-        //}
+        paint_mat.SetFloat("_SmokeRaduis", (0.02f / (transform.localScale.x / 100)));
     }
 }

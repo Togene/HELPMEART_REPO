@@ -14,11 +14,13 @@ public class Paint_Droplet_Creator : MonoBehaviour {
 
     float currentSpawnDelay;
 
+    public Velocity_Calculate velocityCalc;
+
     void FixedUpdate()
     {
         timeSinceLastSpawn += Time.deltaTime;
 
-        if(timeSinceLastSpawn >= currentSpawnDelay)
+        if(timeSinceLastSpawn >= currentSpawnDelay && velocityCalc.Velocity.magnitude > 5)
         {
             timeSinceLastSpawn -= currentSpawnDelay;
             currentSpawnDelay = timeBetweenSpawns.RandomInRange;
@@ -37,7 +39,8 @@ public class Paint_Droplet_Creator : MonoBehaviour {
         spawn.transform.localScale = Vector3.one * scale.RandomInRange;
         spawn.transform.localRotation = Random.rotation;
 
-        spawn.Body.velocity = transform.up * velocity + Random.onUnitSphere * randomVelocity.RandomInRange;
+        spawn.Body.velocity = velocityCalc.Velocity/50 + transform.up * velocity + Random.onUnitSphere * randomVelocity.RandomInRange;
         spawn.GetComponentInChildren<MeshRenderer>().material = dropMaterial;
+        spawn.GetComponentInChildren<MeshRenderer>().material.SetColor("_Color", Paint_Color.PaintColor);
     }
 }

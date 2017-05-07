@@ -10,6 +10,9 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
     public Vector3 pivotPoint, minY, MaxY, minX, MaxX;
 
     public float startLerpValue, paintLerpValue;
+
+
+    public float angle, offset;
 	// Use this for initialization
 	void Start ()
     {
@@ -32,15 +35,16 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
 
     void Update ()
     {
-        float Rx = g_utils.Norm(transform.root.rotation.eulerAngles.x, 0, 90);
-        float Rz = g_utils.Norm(transform.root.rotation.eulerAngles.z, 0, 90);
-        float Ry = transform.root.rotation.y;
+
+        float Ry = (transform.root.rotation.y);
+        float Rx = (transform.root.rotation.x);
+        float Rz = (transform.root.rotation.z);
 
         for (int i = 0; i < vertices.Length; i++)
         {
             Vector3 vert = vertices[i];
 
-            if(vert.y <= minY.y)
+            if (vert.y <= minY.y)
             {
                 minY = new Vector3(0, vert.y, transform.InverseTransformPoint (paintPoints.PaintRingTopVertices[i]).z);
             }
@@ -62,13 +66,20 @@ public class Paint_Mesh_Deformer : MonoBehaviour {
 
         }
 
-        pivotPoint = new Vector3(0, 0, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[1]).z);
-                        
-        pivotPoint.x = Mathf.Lerp(MaxX.x, minX.x, (Rz - startLerpValue));                                                                   
-        pivotPoint.y = Mathf.Lerp(MaxY.y, minY.y, (Rx - startLerpValue));
+        pivotPoint = new Vector3(MaxX.x, MaxY.y, transform.InverseTransformPoint(paintPoints.PaintRingTopVertices[1]).z);
 
+       pivotPoint.x = Mathf.LerpAngle(MaxX.x, minX.x, (Rz - startLerpValue));
+       pivotPoint.y = Mathf.LerpAngle(MaxY.y, minY.y, (Rx - startLerpValue));
 
-        for(int i = 0; i < vertices.Length; i++)
+        angle = (Ry * -1.0f);
+
+        float x1 = (pivotPoint.x * Mathf.Cos(angle) - pivotPoint.y * Mathf.Sin(angle));
+        float y1 = (pivotPoint.y * Mathf.Cos(angle) + pivotPoint.x * Mathf.Sin(angle));
+
+        pivotPoint.x = x1;
+        pivotPoint.y = y1;
+
+        for (int i = 0; i < vertices.Length; i++)
         {
             Vector3 vert = vertices[i];
 

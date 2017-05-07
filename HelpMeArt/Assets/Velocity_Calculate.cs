@@ -8,6 +8,7 @@ public class Velocity_Calculate : MonoBehaviour
     public static Vector3 DrawVelocity;
     public static bool updateingVelocity;
     public bool updateVelCheck;
+    public float magnitude;
 	// Use this for initialization
 	void Start ()
     {
@@ -31,6 +32,7 @@ public class Velocity_Calculate : MonoBehaviour
         }
 
         updateVelCheck = updateingVelocity;
+        magnitude = Velocity.magnitude;
         DrawVelocity = Velocity;
     }
 }
