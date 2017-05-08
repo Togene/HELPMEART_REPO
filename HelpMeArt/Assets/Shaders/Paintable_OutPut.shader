@@ -2,8 +2,11 @@
 
 // Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
 
-Shader"Eugene/Paintable_Output"{
-Properties{
+Shader"Eugene/Paintable_Output"
+{
+
+Properties
+{
 	_MainTex ("Texture", 2D) = "white" {}
 	_DynamicTex("Texture", 2D) = "white" {}
 	_Color("Lit Color", Color) = (1,1,1,1)
@@ -16,7 +19,69 @@ Properties{
 }
 	SubShader{
 		Pass{
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			sampler2D _MainTex;
+			float4 _MainTex_ST;
+			
+			sampler2D _DynamicTex;
+			float4 _DynamicTex_ST;
+
+			//unity defined verables
+			uniform half4 _LightColor0;
+			
+			//Base Input structs		
+			struct vertexInput{
+				half4 vertex : POSITION;
+				half3 normal : NORMAL;
+				half2 texcoord : TEXCOORD;
+			};
+			
+			struct vertexOutput{
+				half4 pos : SV_POSITION;
+				fixed2 uv : TEXCOORD0;
+				float3 posWorld : TEXCOORD1;
+			};
+			
+
+			float4 blend(float4 A, float4 B)
+			{
+			   float4 C;
+			   C.a = A.a + (1 - A.a) * B.a;
+			   C.rgb = (1 / C.a) * (A.a * A.rgb + (1 - A.a) * B.a * B.rgb);
+			   return C;
+			}
+
+			//vertex function
+			vertexOutput vert(vertexInput v)
+			{
+					vertexOutput o;
+					
+					//Unity transform Position
+					o.pos = UnityObjectToClipPos(v.vertex);
+				    o.posWorld = mul(unity_ObjectToWorld, v.vertex);
+					o.uv = v.texcoord;
+					
+					return o;
+			
+			}
+			//fragment function
+			fixed4 frag(vertexOutput i) : COLOR
+			{
+			// sample the texture 
+			fixed4 dynoSmoke = tex2D(_DynamicTex, i.uv);
+			fixed4 main = tex2D(_MainTex, i.uv);
+
+			return fixed4(blend(dynoSmoke, main).rgb, 1.0);
+			}
+			ENDCG
+		}
+
+			Pass{
 			Tags{"LightMode" = "ForwardBase"}
+			Blend DstColor Zero
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
@@ -29,18 +94,10 @@ Properties{
 			uniform fixed4 _SpecColor;
 			uniform fixed _Shininess;
 			uniform half _SpecDiffusion;
-
-			sampler2D _MainTex;
-			float4 _MainTex_ST;
-			
-			sampler2D _DynamicTex;
-			float4 _DynamicTex_ST;
-
 			//unity defined verables
 			uniform half4 _LightColor0;
 			
-			//Base Input structs
-			
+			//Base Input structs		
 			struct vertexInput{
 				half4 vertex : POSITION;
 				half3 normal : NORMAL;
@@ -55,15 +112,6 @@ Properties{
 				fixed2 uv : TEXCOORD3;
 			};
 			
-
-			float4 blend(float4 A, float4 B)
-			{
-			   float4 C;
-			   C.a = A.a + (1 - A.a) * B.a;
-			   C.rgb = (1 / C.a) * (A.a * A.rgb + (1 - A.a) * B.a * B.rgb);
-			   return C;
-			}
-
 			//vertex function
 			vertexOutput vert(vertexInput v)
 			{
@@ -108,12 +156,7 @@ Properties{
 			fixed3 specularReflection = _SpecColor.xyz * specularCutoff;
 			
 			fixed3 lightFinal = ambientLight + diffuseReflection + specularReflection;
-			
-			// sample the texture 
-			fixed4 dynoSmoke = tex2D(_DynamicTex, i.uv);
-			fixed4 main = tex2D(_MainTex, i.uv);
-
-			return fixed4(lightFinal * blend(dynoSmoke, main).rgb, 1.0);
+			return fixed4(lightFinal.rgb, 1.0);
 			}
 			ENDCG
 		}

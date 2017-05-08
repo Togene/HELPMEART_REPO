@@ -17,7 +17,7 @@ public class DynamicApplyShader : MonoBehaviour {
     private Color m_paintColor;
 
     public bool paint;
-
+    public float scaleMultiplier;
     // Use this for initialization
     void Start ()
     {
@@ -32,16 +32,19 @@ public class DynamicApplyShader : MonoBehaviour {
         paint_mat.SetVector("_Transmission", new Vector4(1, 1, 1, 1));
         paint_mat.SetFloat("_Dissipation", 0);
         paint_mat.SetFloat("_ContactPointsLength", 6);
-
-        paint_mat.SetFloat("_SmokeRaduis", 0.02f / (transform.localScale.x / 100));
+        paint_mat.SetFloat("_SmokeRaduis", (2f / transform.localScale.x) * scaleMultiplier);
 
         m_paintColor = paintColor;
         texture = new RenderTexture(2056, 2056, 24);
         texture.filterMode = FilterMode.Bilinear;
+        texture.wrapMode = TextureWrapMode.Clamp;
         Newtexture = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
         Newtexture.filterMode = FilterMode.Bilinear; 
+        Newtexture.wrapMode = TextureWrapMode.Clamp;
+
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
         buffer.filterMode = FilterMode.Bilinear;
+        buffer.wrapMode = TextureWrapMode.Clamp;
         outPut.SetTexture("_DynamicTex", texture);
     }
 	
@@ -58,12 +61,15 @@ public class DynamicApplyShader : MonoBehaviour {
 
         RenderTexture temp = RenderTexture.GetTemporary(1028, 1028, 24);
         temp.filterMode = FilterMode.Bilinear;
+        temp.wrapMode = TextureWrapMode.Clamp;
         texture = new RenderTexture(1028, 1028, 16);
         texture.filterMode = FilterMode.Trilinear;
+        texture.wrapMode = TextureWrapMode.Clamp;
         buffer = new RenderTexture(texture.width, texture.height, texture.depth, texture.format);
         buffer.filterMode = FilterMode.Trilinear; 
+        buffer.wrapMode = TextureWrapMode.Clamp;
 
-        Graphics.Blit(null, temp, outPut);
+        Graphics.Blit(null, temp, outPut, 0);
         Graphics.Blit(temp, Newtexture);
 
         outPut.SetTexture("_MainTex", Newtexture);
@@ -82,20 +88,17 @@ public class DynamicApplyShader : MonoBehaviour {
             paintColor = Paint_Color.PaintColor;
         }
 
-            if (paint)
+        if (paint)
         {     
-            paint_mat.SetVector("_SmokeCentre", new Vector2(RayCast.texCoords.x, RayCast.texCoords.y) / transform.localScale.x);
-
             if (Paint_Collision_Detection.contantPoints.Length > 0)
+            {
                 paint_mat.SetVectorArray("_Array", Paint_Collision_Detection.contantPoints);
+            
+                for (int i = 0; i < Paint_Collision_Detection.contantPoints.Length; i++)
+                paint_mat.SetVector("_SmokeCentre", Paint_Collision_Detection.contantPoints[i]);
+            }
 
             paint_mat.SetColor("_PaintColor", paintColor);
-
-            if (!Velocity_Calculate.updateingVelocity)
-            {
-                // NewTexture();
-                // paint_mat.SetVector("_Transmission", new Vector4(Velocity_Calculate.DrawVelocity.x, Velocity_Calculate.DrawVelocity.y, Velocity_Calculate.DrawVelocity.z, 1.0f));
-            }
 
             if (Input.GetMouseButton(0))
                 paint_mat.SetFloat("_DRAWMode", 1);
@@ -112,7 +115,6 @@ public class DynamicApplyShader : MonoBehaviour {
         }
 
         UpdateTexture();
-
-        paint_mat.SetFloat("_SmokeRaduis", (0.02f / (transform.localScale.x / 100)));
     }
+
 }

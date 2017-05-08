@@ -31,7 +31,8 @@ Shader "Eugene/Paintable"
 			#pragma shader_feature _DRAWMode_DRAW _DRAWMode_NODRAW
 
 			uniform int _ContactPointsLength;
-			float3 _Array[6];
+			float3 _Array[200];
+			float3 _SingleContactPoint;
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
 
@@ -51,6 +52,7 @@ Shader "Eugene/Paintable"
 				float4 pos : SV_POSITION;
 				float2 uv : TEXCOORD0;
 				float3 wPos : TEXCOORD1;
+				float3 frag : TEXCOORD2;
 			};
 
 			v2f vert (appdata_full v)
@@ -72,7 +74,7 @@ Shader "Eugene/Paintable"
 			//
 			float cl = tex2D(_MainTex, uv + fixed2(-s, 0)).a;	// Centre Left
 			float tc = tex2D(_MainTex, uv + fixed2(-0, -s)).a;	// Top Centre
-			float cc = tex2D(_MainTex, uv + fixed2(0, 0)).a;	// Centre Centre
+			float cc = tex2D(_MainTex, i.wPos.xy + fixed2(0, 0)).a;	// Centre Centre
 			float bc = tex2D(_MainTex, uv + fixed2(0, +s)).a;	// Bottom Centre
 			float cr = tex2D(_MainTex, uv + fixed2(+s, 0)).a;	// Centre Right
 
@@ -96,15 +98,23 @@ Shader "Eugene/Paintable"
 
 			float3 wPos = i.wPos;
 
-			for (int i = 0; i < _ContactPointsLength; i++)
-			{
-				if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
+			//for (int i = 0; i < _ContactPointsLength; i++)
+			//{
+			//	if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
+			//	{
+			//	cc = 1;
+			//	_PaintColor.rgb = _PaintColor.rgb;
+			//	//discard;
+			//	}
+			//}
+
+
+			if (distance(wPos, _SmokeCentre.xy) < _SmokeRaduis)
 				{
 				cc = 1;
 				_PaintColor.rgb = _PaintColor.rgb;
 				//discard;
 				}
-			}
 
 			//if(stamp.a < .9)
 			//discard;
