@@ -98,26 +98,26 @@ Shader "Eugene/Paintable"
 
 			float3 wPos = i.wPos;
 
-			//for (int i = 0; i < _ContactPointsLength; i++)
-			//{
-			//	if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
-			//	{
-			//	cc = 1;
-			//	_PaintColor.rgb = _PaintColor.rgb;
-			//	//discard;
-			//	}
-			//}
-
-
-			if (distance(wPos, _SmokeCentre.xy) < _SmokeRaduis)
+			for (int i = 0; i < _ContactPointsLength; i++)
+			{
+				if (distance(wPos, _Array[i].xy) < _SmokeRaduis)
 				{
 				cc = 1;
 				_PaintColor.rgb = _PaintColor.rgb;
 				//discard;
 				}
+			}
 
-			//if(stamp.a < .9)
-			//discard;
+
+			//if (distance(wPos, _SmokeCentre.xy) < _SmokeRaduis)
+			//	{
+			//	cc = 1;
+			//	_PaintColor.rgb = _PaintColor.rgb;
+			//	//discard;
+			//	}
+			//
+			////if(stamp.a < .9)
+			////discard;
 
 
 			return 

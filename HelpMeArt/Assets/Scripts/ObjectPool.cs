@@ -5,7 +5,7 @@ using UnityEngine;
 public class ObjectPool : MonoBehaviour {
 
     PooledObject prefab;
-    List<PooledObject> availableObjects = new List<PooledObject>();
+    public List<PooledObject> availableObjects = new List<PooledObject>();
 
 
 

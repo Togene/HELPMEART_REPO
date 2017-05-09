@@ -21,14 +21,20 @@ public class Droplet : PooledObject
     void OnCollisionEnter(Collision enteredCollider)
     {
         if(enteredCollider.gameObject.tag == "Paintable")
-            ReturnToPool();
+            StartCoroutine(StartReturnToPool());
     }
 
     void OnTriggerEnter(Collider enteredCollider)
     {
         if(enteredCollider.CompareTag("Kill Zone"))
         {
-            ReturnToPool();
+            StartCoroutine(StartReturnToPool());
         }
+    }
+
+    IEnumerator StartReturnToPool()
+    {
+        yield return new WaitForSeconds(5);
+        ReturnToPool();
     }
 }
