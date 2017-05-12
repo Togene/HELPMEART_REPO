@@ -34,7 +34,7 @@ public class Droplet : PooledObject
 
     IEnumerator StartReturnToPool()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(0);
         ReturnToPool();
     }
 }
