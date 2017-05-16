@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DynamicApplyShader : MonoBehaviour {
+public class DynamicPaintApplyShader : MonoBehaviour {
 
     private Material paint_mat; //Wraps the Shader
     private Material outPut;
@@ -32,7 +32,7 @@ public class DynamicApplyShader : MonoBehaviour {
         paint_mat.SetVector("_Transmission", new Vector4(1, 1, 1, 1));
         paint_mat.SetFloat("_Dissipation", 0);
         paint_mat.SetFloat("_ContactPointsLength", 6);
-        paint_mat.SetFloat("_SmokeRaduis", (2f / transform.localScale.x) * scaleMultiplier);
+        paint_mat.SetFloat("_SmokeRaduis", (.5f / transform.localScale.x) * scaleMultiplier);
 
         m_paintColor = paintColor;
         texture = new RenderTexture(2056, 2056, 24);

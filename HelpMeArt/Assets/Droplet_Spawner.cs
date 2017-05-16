@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Paint_Collision_Detection))]
 public class Droplet_Spawner : MonoBehaviour {
 
     public float radius, tiltAngle;

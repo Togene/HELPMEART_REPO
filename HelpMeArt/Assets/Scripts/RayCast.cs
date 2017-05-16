@@ -33,9 +33,9 @@ public class RayCast : MonoBehaviour {
                 texCoords = hit.textureCoord;
                 direction = hit.normal;
 
-                if (obj.GetComponent<DynamicApplyShader>())
+                if (obj.GetComponent<DynamicPaintApplyShader>())
                 {
-                    obj.GetComponent<DynamicApplyShader>().paint = true;
+                    obj.GetComponent<DynamicPaintApplyShader>().paint = true;
                 }
 
             }
@@ -43,7 +43,7 @@ public class RayCast : MonoBehaviour {
             {
                 if (obj != null)
                 {
-                    obj.GetComponent<DynamicApplyShader>().paint = false;
+                    obj.GetComponent<DynamicPaintApplyShader>().paint = false;
                     obj = null;
                 }
             }

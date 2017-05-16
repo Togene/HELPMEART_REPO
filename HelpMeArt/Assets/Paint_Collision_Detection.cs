@@ -24,9 +24,7 @@ public class Paint_Collision_Detection : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update ()
-    {
-
-        
+    {     
         transform.rotation = Quaternion.FromToRotation(-transform.forward, RayCast.direction) * transform.rotation;
         transform.position = RayCast.hitPoint + offset + RayCast.direction; 
         contactPointsView = contantPoints;
