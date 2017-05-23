@@ -30,22 +30,28 @@ public class Paint_Mesh_Deformer_Points : MonoBehaviour {
     public line[] Lines;
 
     public Vector3 offsetTop, offsetBottom;
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Awake()
     {
-       //PaintRingVerticesOrigin = GetComponent<MeshFilter>().mesh.vertices;
-       //PaintRingTopVertices = GetComponent<MeshFilter>().mesh.vertices;
-       //PaintRingBottomVertices = GetComponent<MeshFilter>().mesh.vertices;
-       //
-       //// Transorfing vertices to World Space and saving its Original Position before Translation and Rotation
-       // for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
-       //     PaintRingVerticesOrigin[i] = (transform.localToWorldMatrix) *  (PaintRingVerticesOrigin[i]);
-       //Lines = new line[PaintRingVerticesOrigin.Length]; 
-       //
-       // for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
-       // {
-       //     Lines[i] = new line(PaintRingTopVertices[i], PaintRingBottomVertices[i]);
-       // }
+        PaintRingVerticesOrigin = new Vector3[GetComponent<MeshFilter>().mesh.vertices.Length];
+        GetComponent<MeshFilter>().mesh.vertices.CopyTo(PaintRingVerticesOrigin, 0);
+
+
+        PaintRingTopVertices = new Vector3[GetComponent<MeshFilter>().mesh.vertices.Length];
+        PaintRingBottomVertices = new Vector3[GetComponent<MeshFilter>().mesh.vertices.Length];
+
+        // Transorfing vertices to World Space and saving its Original Position before Translation and Rotation
+        for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
+        { 
+        PaintRingVerticesOrigin[i] = (transform.localToWorldMatrix) * (PaintRingVerticesOrigin[i]);
+        Lines = new line[PaintRingVerticesOrigin.Length];
+        }
+         for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
+         {
+             Lines[i] = new line(PaintRingTopVertices[i], PaintRingBottomVertices[i]);
+         }
+
+        ProjectVertices();
     }
 	
 	// Update is called once per frame
@@ -59,7 +65,6 @@ public class Paint_Mesh_Deformer_Points : MonoBehaviour {
     {
         for (int i = 0; i < PaintRingVerticesOrigin.Length; i++)
         {
-
             Vector3 PaintRingTopVerticesPosition =
                 new Vector3(transform.root.position.x, transform.root.position.y, transform.root.position.z);
             //Position Handling
