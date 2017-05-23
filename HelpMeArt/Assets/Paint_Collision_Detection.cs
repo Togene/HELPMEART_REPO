@@ -23,13 +23,14 @@ public class Paint_Collision_Detection : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	void FixedUpdate ()
     {     
         transform.rotation = Quaternion.FromToRotation(-transform.forward, RayCast.direction) * transform.rotation;
         transform.position = RayCast.hitPoint + offset + RayCast.direction; 
         contactPointsView = contantPoints;
 
-
+		for(int j = 0; j < 12; j++)
+		{
         for (int i = 0; i < brushPoints.Length; i++)
         {
             RaycastHit hit;
@@ -39,13 +40,14 @@ public class Paint_Collision_Detection : MonoBehaviour {
 
             if(Physics.Raycast(ray, out hit, rayLength))
             {
-                if (hit.transform.tag == "Paintable")
-                {
+                //if (hit.transform.tag == "Paintable")
+                //{
                     contantPoints[i % 6] = new Vector4(hit.textureCoord.x, hit.textureCoord.y, 1.0f, 1.0f);
                     //Debug.Log("Hitting");
-                }
+                //}
             }
         }
+		}
 	}
 
     }

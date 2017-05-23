@@ -32,7 +32,7 @@ public class DynamicPaintApplyShader : MonoBehaviour {
         paint_mat.SetVector("_Transmission", new Vector4(1, 1, 1, 1));
         paint_mat.SetFloat("_Dissipation", 0);
         paint_mat.SetFloat("_ContactPointsLength", 6);
-        paint_mat.SetFloat("_SmokeRaduis", (.5f / transform.localScale.x) * scaleMultiplier);
+        paint_mat.SetFloat("_SmokeRaduis", (Paint_Object_Data.PointSize / transform.localScale.x) * scaleMultiplier);
 
         m_paintColor = paintColor;
         texture = new RenderTexture(2056, 2056, 24);
@@ -82,10 +82,11 @@ public class DynamicPaintApplyShader : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
+		 paint_mat.SetFloat("_SmokeRaduis", (Paint_Object_Data.PointSize / transform.localScale.x) * scaleMultiplier);
 
-        if (paintColor != Paint_Color.PaintColor)
+        if (paintColor != Paint_Object_Data.PaintColor)
         {
-            paintColor = Paint_Color.PaintColor;
+            paintColor = Paint_Object_Data.PaintColor;
         }
 
         if (paint)

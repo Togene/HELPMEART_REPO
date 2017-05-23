@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class Droplet : PooledObject
 {
+	public bool lookAt{ get; set;}
     public Rigidbody Body { get; private set; }
 	// Use this for initialization
 	void Awake ()
@@ -14,6 +15,7 @@ public class Droplet : PooledObject
 
     void Update()
     {
+	if(lookAt)
        transform.LookAt(Camera.main.transform);
     }
 

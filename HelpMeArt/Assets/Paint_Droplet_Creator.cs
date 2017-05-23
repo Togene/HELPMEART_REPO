@@ -16,6 +16,8 @@ public class Paint_Droplet_Creator : MonoBehaviour {
 
     public Velocity_Calculate velocityCalc;
 
+	public bool lookatCam;
+
     void FixedUpdate()
     {
         timeSinceLastSpawn += Time.deltaTime;
@@ -39,8 +41,9 @@ public class Paint_Droplet_Creator : MonoBehaviour {
         spawn.transform.localScale = Vector3.one * scale.RandomInRange;
         spawn.transform.localRotation = Random.rotation;
 
+		spawn.lookAt = lookatCam;
         spawn.Body.velocity = velocityCalc.Velocity/50 + transform.up * velocity + Random.onUnitSphere * randomVelocity.RandomInRange;
         spawn.GetComponentInChildren<MeshRenderer>().material = dropMaterial;
-        spawn.GetComponentInChildren<MeshRenderer>().material.SetColor("_Color", Paint_Color.PaintColor);
+        spawn.GetComponentInChildren<MeshRenderer>().material.SetColor("_Color", Paint_Object_Data.PaintColor);
     }
 }

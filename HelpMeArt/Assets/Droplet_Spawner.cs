@@ -5,6 +5,7 @@ using UnityEngine;
 public class Droplet_Spawner : MonoBehaviour {
 
     public float radius, tiltAngle;
+	public bool lookatCam;
 
     public Paint_Droplet_Creator spawnerPrefab;
     private Paint_Collision_Detection collision_detection;
@@ -29,6 +30,7 @@ public class Droplet_Spawner : MonoBehaviour {
         Paint_Droplet_Creator dropletSpawner = Instantiate<Paint_Droplet_Creator>(spawnerPrefab);
         dropletSpawner.dropMaterial = dropletMaterial;
 
+		dropletSpawner.lookatCam = lookatCam;
         dropletSpawner.velocityCalc = velocitycheck;
         dropletSpawner.transform.SetParent(collision_detection.brushPoints[index].transform, false);
         dropletSpawner.transform.localPosition = new Vector3(0,0,0); 
